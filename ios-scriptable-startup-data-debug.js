@@ -5,7 +5,6 @@ const JSON_CONTENT_TYPE = 'application/json';
 const loginUrl = "https://www.heroesgame.com/api/login";
 const accountPlayUrl = "https://un0.heroesofhistorygame.com/core/api/account/play";
 const startupApiUrl = "https://un1.heroesofhistorygame.com/game/startup";
-const fogInGameDataUrl = "https://forgeofgames.com/api/hoh/inGameData"
 
 async function login() {
     const username = Keychain.get(usernameKeychainKey)
@@ -66,10 +65,7 @@ async function login() {
     };
     playReq.body = JSON.stringify(playPayload);
 
-    const sessionData = await playReq.loadJSON()
-    sessionData.clientVersion = clientVersion
-
-    return sessionData
+    return await playReq.loadJSON();
 }
 
 function addStartupHeaders(sessionData) {
@@ -81,6 +77,7 @@ function addStartupHeaders(sessionData) {
     headers['Accept-Encoding'] = 'gzip';
     headers['Accept'] = PROTOBUF_CONTENT_TYPE;
     headers['Content-Type'] = PROTOBUF_CONTENT_TYPE;
+    headers['X-Action-At'] = new Date().toISOString();
     return headers;
 }
 
@@ -95,19 +92,43 @@ async function getStartupAsync(sessionData) {
     req.method = "POST";
     req.headers = addStartupHeaders(sessionData);
     const response = await req.load();
-    return response.toBase64String()
+    return response; // Return raw Data object instead of base64 string
 }
 
-async function sendStartupAsync(startupData) {
-    const payload = {
-        inGameStartupData: startupData
-    };
-    const req = new Request(fogInGameDataUrl);
-    req.method = "POST";
-    req.headers = addDefaultHeaders();
-    req.body = JSON.stringify(payload);
+async function saveStartupDataToFiles(startupData) {
+    try {
+        // Create a filename with timestamp
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const filename = `hoh_startup_data_${timestamp}.bin`;
 
-    return await req.loadJSON();
+        // Get the Documents directory path in iCloud Drive/Scriptable
+        const documentsPath = FileManager.iCloud().documentsDirectory();
+        const filePath = FileManager.iCloud().joinPath(documentsPath, filename);
+
+        // Write the raw binary data to file
+        FileManager.iCloud().write(filePath, startupData);
+
+        console.log(`Data saved to: ${filename}`);
+
+        // Show success alert with file location
+        let alert = new Alert();
+        alert.title = "Data Saved Successfully";
+        alert.message = `Binary data saved to Files app:\nScriptable/${filename}`;
+        alert.addAction("OK");
+        await alert.present();
+
+        return true;
+    } catch (error) {
+        console.error("Error saving file:", error);
+
+        let alert = new Alert();
+        alert.title = "Save Error";
+        alert.message = `Failed to save data: ${error.message}`;
+        alert.addAction("OK");
+        await alert.present();
+
+        return false;
+    }
 }
 
 function checkCredentials() {
@@ -173,18 +194,27 @@ async function main() {
         }
     }
 
-    const sessionData = await login();
-    if (!sessionData) return;
-    console.log("Session data received");
+    try {
+        const sessionData = await login();
+        if (!sessionData) return;
+        console.log("Session data received");
 
-    const startupData = await getStartupAsync(sessionData);
-    if (!startupData) return;
-    console.log("Startup data received");
+        const startupData = await getStartupAsync(sessionData);
+        if (!startupData) return;
+        console.log("Startup data received");
 
-    const fogResponse = await sendStartupAsync(startupData);
-    if (fogResponse?.webResourceUrl) {
-        console.log("Fog data received");
-        Safari.open(fogResponse.webResourceUrl);
+        const saveSuccess = await saveStartupDataToFiles(startupData);
+        if (saveSuccess) {
+            console.log("Data successfully saved to Files");
+        }
+    } catch (error) {
+        console.error("Error in main execution:", error);
+
+        let alert = new Alert();
+        alert.title = "Script Error";
+        alert.message = `An error occurred: ${error.message}`;
+        alert.addAction("OK");
+        await alert.present();
     }
 }
 
