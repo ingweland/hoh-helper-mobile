@@ -18,7 +18,7 @@ async function login() {
 
     const loginReq = new Request(loginUrl);
     loginReq.method = "POST";
-    loginReq.headers = addDefaultHeaders();
+    loginReq.headers = addLoginHeaders();
     loginReq.body = JSON.stringify(loginPayload);
 
     const loginData = await loginReq.loadJSON();
@@ -87,6 +87,13 @@ function addStartupHeaders(sessionData) {
 function addDefaultHeaders() {
     const headers = {};
     headers['Content-Type'] = JSON_CONTENT_TYPE;
+    return headers;
+}
+
+function addLoginHeaders() {
+    const headers = {};
+    headers['Content-Type'] = JSON_CONTENT_TYPE;
+    headers['Cookie'] = "hoh-helper-mobile";
     return headers;
 }
 

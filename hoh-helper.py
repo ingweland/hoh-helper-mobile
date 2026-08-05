@@ -30,6 +30,12 @@ def startup_headers(session_data):
         "Content-Type": PROTOBUF_CONTENT_TYPE
     }
 
+def login_headers():
+    return {
+        "Cookie": "hoh-helper-mobile",
+        "Content-Type": JSON_CONTENT_TYPE
+    }
+
 # === NETWORK FUNCTIONS ===
 def login():
     session = requests.Session()
@@ -40,7 +46,7 @@ def login():
         "useRememberMe": False
     }
 
-    response = session.post(login_url, headers=default_headers(), json=payload)
+    response = session.post(login_url, headers=login_headers(), json=payload)
     response.raise_for_status()
     login_data = response.json()
 

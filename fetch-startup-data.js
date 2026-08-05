@@ -56,7 +56,8 @@ async function login() {
             redirect: 'follow',
             headers: {
                 "Accept": "*/*",
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Cookie": "hoh-helper-mobile"
             },
             body: JSON.stringify(loginPayload)
         });
