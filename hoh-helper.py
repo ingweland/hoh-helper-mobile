@@ -11,8 +11,8 @@ PASSWORD = ""
 PROTOBUF_CONTENT_TYPE = 'application/x-protobuf'
 JSON_CONTENT_TYPE = 'application/json'
 login_url = "https://www.heroesgame.com/api/login"
-account_play_url = "https://un0.heroesofhistorygame.com/core/api/account/play"
-startup_api_url = "https://un1.heroesofhistorygame.com/game/startup"
+account_play_url = "https://un0.heroesgame.com/core/api/account/play"
+startup_api_url = "https://un1.heroesgame.com/game/startup"
 fog_data_url = "https://forgeofgames.com/api/hoh/inGameData"
 
 # === HEADERS ===
@@ -53,7 +53,7 @@ def login():
     redirect_res = session.get(login_data["redirectUrl"])
     redirect_res.raise_for_status()
 
-    client_version_match = re.search(r'const\s+clientVersion\s*=\s*"([^"]+)"', redirect_res.text)
+    client_version_match = re.search(r'(?:var|const)\s+clientVersion\s*=\s*"([^"]+)"', redirect_res.text)
     if not client_version_match:
         raise Exception("Client version not found.")
 

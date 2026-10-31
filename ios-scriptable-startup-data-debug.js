@@ -3,8 +3,8 @@ const passwordKeychainKey = "hoh_helper_mobile_password";
 const PROTOBUF_CONTENT_TYPE = 'application/x-protobuf';
 const JSON_CONTENT_TYPE = 'application/json';
 const loginUrl = "https://www.heroesgame.com/api/login";
-const accountPlayUrl = "https://un0.heroesofhistorygame.com/core/api/account/play";
-const startupApiUrl = "https://un1.heroesofhistorygame.com/game/startup";
+const accountPlayUrl = "https://un0.heroesgame.com/core/api/account/play";
+const startupApiUrl = "https://un1.heroesgame.com/game/startup";
 
 async function login() {
     const username = Keychain.get(usernameKeychainKey)
@@ -30,7 +30,7 @@ async function login() {
     if (cookieHeader === "") {
         throw new Error("SESSION cookie not found.");
     }
-    const clientVersionMatch = redirectHtml.match(/const\s+clientVersion\s*=\s*"([^"]+)"/);
+    const clientVersionMatch = redirectHtml.match(/(?:var|const)\s+clientVersion\s*=\s*"([^"]+)"/);
 
     if (!clientVersionMatch) {
         throw new Error("Client version not found.");

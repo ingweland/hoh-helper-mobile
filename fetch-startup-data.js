@@ -9,8 +9,8 @@ const password = "";
 const PROTOBUF_CONTENT_TYPE = 'application/x-protobuf';
 const JSON_CONTENT_TYPE = 'application/json';
 const loginUrl = "https://beta.heroesgame.com/api/login";
-const accountPlayUrl = "https://zz0.heroesofhistorygame.com/core/api/account/play";
-const startupApiUrl = "https://zz1.heroesofhistorygame.com/game/startup";
+const accountPlayUrl = "https://zz0.heroesgame.com/core/api/account/play";
+const startupApiUrl = "https://zz1.heroesgame.com/game/startup";
 const fogInGameDataUrl = "https://forgeofgames.com/api/hoh/inGameData";
 
 // Import fetch for Node.js versions that don't have it built-in
@@ -92,7 +92,7 @@ async function login() {
             headers: { 'Cookie': newCookies },
         }).then(res => res.text());
 
-        const clientVersionMatch = r2.match(/const\s+clientVersion\s*=\s*"([^"]+)"/);
+        const clientVersionMatch = r2.match(/(?:var|const)\s+clientVersion\s*=\s*"([^"]+)"/);
 
         if (!clientVersionMatch) {
             throw new Error("Client version not found in redirected page");
